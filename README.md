@@ -35,9 +35,9 @@ The script performs the following tasks:
 To integrate the Salat Time Tracker into Polybar, add the following configuration:
 
 ```
-[module/athan]
+[module/azan]
 type = custom/script
-exec = ~/.config/polybar/scripts/check-athan/main.py
+exec = /<path of your script>/azan.sh
 interval = 60
 ```
 

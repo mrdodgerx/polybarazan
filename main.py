@@ -51,13 +51,17 @@ if __name__ == "__main__":
                 start = time_range
                 end = prayer_times[i + 1][1]  # Accessing the end time from the next tuple
                 if is_time_in_range(start, end, current_time):
-                    print(f"Current Time: {prayer}, Next: {prayer_times[i + 1][0]} at {prayer_times[i + 1][1]}")
+                    # print(f"Current Time: {prayer}, Next: {prayer_times[i + 1][0]} at {prayer_times[i + 1][1]}")
+                    print(f" {prayer_times[i + 1][0]} at {prayer_times[i + 1][1]}")
+
                     break
             else:
                 end = time_range
                 start = prayer_times[0][1]  # Accessing the end time from the next tuple
                 print(start, end)
-                print(f"Current Time: {prayer_times[len(prayer_times) - 1][0]}, Next: {prayer_times[0][0]} at {prayer_times[0][1]}")
+                # print(f"Current Time: {prayer_times[len(prayer_times) - 1][0]}, Next: {prayer_times[0][0]} at {prayer_times[0][1]}")
+                print(f" {prayer_times[0][0]} at {prayer_times[0][1]}")
+                
                 break
         
     except Exception as err:
