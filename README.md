@@ -45,7 +45,7 @@ interval = 60
 
 The output will be similar to the following:
 ```
-Current Time: Asar, Next: Maghrib at 19:26
+ Imsak at 06:02
 
 ```
 
