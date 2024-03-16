@@ -58,7 +58,7 @@ if __name__ == "__main__":
             else:
                 end = time_range
                 start = prayer_times[0][1]  # Accessing the end time from the next tuple
-                print(start, end)
+                # print(start, end)
                 # print(f"Current Time: {prayer_times[len(prayer_times) - 1][0]}, Next: {prayer_times[0][0]} at {prayer_times[0][1]}")
                 print(f" {prayer_times[0][0]} at {prayer_times[0][1]}")
                 
