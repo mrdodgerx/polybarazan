@@ -1,0 +1,20 @@
+# CHANGELOG
+
+## [Unreleased]
+
+### Added
+- Implemented desktop notifications using `notify-send` command
+- Added LICENSE file
+
+### Changed
+- Updated README.md with additional information and usage instructions
+
+### Fixed
+- Fixed print output formatting issue
+
+### Tested
+- Tested on bspwm with polybar
+
+### Initial Commit
+- Initial commit with main code
+
