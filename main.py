@@ -1,7 +1,7 @@
 import requests
 import datetime
 from bs4 import BeautifulSoup
-import time
+import subprocess
 
 def get_html_page():
     url = 'https://www.waktusolat.my/selangor/sgr01'
@@ -29,6 +29,15 @@ def is_time_in_range(start, end, current):
 def convert_time(time, convert_from, convert_to):
     return datetime.datetime.strptime(time, convert_from).time().strftime(convert_to)
 
+def send_notification(title, message):
+    command = ['notify-send', title, message]
+    subprocess.run(command)
+
+def is_prayer_time(prayer, prayer_time):
+    time_now = datetime.datetime.now().strftime('%H:%M')
+    if time_now == prayer_time:
+        send_notification("Prayer Time", f"It's time for {prayer}.")
+
 if __name__ == "__main__":
     try:
         html = get_html_page()
@@ -37,33 +46,32 @@ if __name__ == "__main__":
         current_time = datetime.datetime.now().time().strftime('%H:%M:%S')
         convert_from = "%H:%M"
         wanted_time_format = "%I:%M %p"
-
-        # print(timings)
-        # print(current_time)
+        list_timings = list(timings.items())  
         
-        # Convert dict_items object to list of tuples
-        prayer_times = list(timings.items())
-        
-        for i in range(len(prayer_times)):
-            prayer, time_range = prayer_times[i]
-            # print(prayer, time_range)
-            if i < len(prayer_times) - 1:
+        for i in range(len(list_timings)):
+            prayer, time_range = list_timings[i]
+            
+            is_prayer_time(prayer,time_range) # Send Notification Prayer Time
+            
+            if i < len(list_timings) - 1:
+    
                 start = time_range
-                end = prayer_times[i + 1][1]  # Accessing the end time from the next tuple
+                end = list_timings[i + 1][1]
+                prayer_time = list_timings[i + 1][1]
+                prayer = list_timings[i + 1][0]
+                    
                 if is_time_in_range(start, end, current_time):
-                    # print(f"Current Time: {prayer}, Next: {prayer_times[i + 1][0]} at {prayer_times[i + 1][1]}")
-                    print(f" {prayer_times[i + 1][0]} at {prayer_times[i + 1][1]}")
-
+                    # print(f"Current Time: {prayer}, Next: {list_timings[i + 1][0]} at {list_timings[i + 1][1]}")
+                    print(f" {prayer} at {prayer_time}")
                     break
             else:
                 end = time_range
-                start = prayer_times[0][1]  # Accessing the end time from the next tuple
-                # print(start, end)
-                # print(f"Current Time: {prayer_times[len(prayer_times) - 1][0]}, Next: {prayer_times[0][0]} at {prayer_times[0][1]}")
-                print(f" {prayer_times[0][0]} at {prayer_times[0][1]}")
-                
+                start = list_timings[0][1]
+                prayer_time = list_timings[0][1]
+                prayer = list_timings[0][0]
+                # print(f"Current Time: {list_timings[len(list_timings) - 1][0]}, Next: {list_timings[0][0]} at {list_timings[0][1]}")
+                print(f" {prayer} at {prayer_time}")
                 break
         
     except Exception as err:
         print(err)
-    
