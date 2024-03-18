@@ -25,9 +25,6 @@ def is_time_in_range(start, end, current):
     end_time = datetime.datetime.strptime(end, '%H:%M')
     current_time = datetime.datetime.strptime(current, '%H:%M:%S')
     return start_time <= current_time <= end_time
-        
-def convert_time(time, convert_from, convert_to):
-    return datetime.datetime.strptime(time, convert_from).time().strftime(convert_to)
 
 def send_notification(title, message):
     command = ['notify-send', title, message]
