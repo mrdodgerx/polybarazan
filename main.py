@@ -71,4 +71,4 @@ if __name__ == "__main__":
                 break
         
     except Exception as err:
-        print(err)
+        print('Error, cannot get the page')
