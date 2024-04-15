@@ -1,5 +1,11 @@
 #!/bin/bash
+
+# Change directory to the current directory
+cd /home/mrdodgerx/.config/bin/others/polybarazan
+
 # Activate the virtual environment
-source /home/mrdodgerx/Code4Life/PolyBarAzan/venv/bin/activate
+source venv/bin/activate
+
 # Run the Python script
-python /home/mrdodgerx/Code4Life/PolyBarAzan/main.py
+python main.py
+
