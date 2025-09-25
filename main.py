@@ -1,3 +1,4 @@
+    #    url = 'https://www.waktusolat.my/terengganu/trg01'
 import requests
 import datetime
 from bs4 import BeautifulSoup
@@ -15,16 +16,10 @@ def get_prayer_time(html):
     salat_boxes = soup.find_all(class_='salat-times__box')
     salat_times = {}
     for box in salat_boxes:
-        key = box.find('h4').text
-        value = box.find('span').text
+        key = box.find('h4').text.strip()
+        value = box.find('span').text.strip()
         salat_times[key] = value
     return salat_times
-
-def is_time_in_range(start, end, current):
-    start_time = datetime.datetime.strptime(start, '%H:%M')
-    end_time = datetime.datetime.strptime(end, '%H:%M')
-    current_time = datetime.datetime.strptime(current, '%H:%M:%S')
-    return start_time <= current_time <= end_time
 
 def send_notification(title, message):
     command = ['notify-send', title, message]
@@ -39,36 +34,43 @@ if __name__ == "__main__":
     try:
         html = get_html_page()
         timings = get_prayer_time(html)
+
+        # Convert prayer times into a list of (prayer_name, datetime_object)
+        now = datetime.datetime.now()
+        prayer_times = []
         
-        current_time = datetime.datetime.now().time().strftime('%H:%M:%S')
-        convert_from = "%H:%M"
-        wanted_time_format = "%I:%M %p"
-        list_timings = list(timings.items())  
-        
-        for i in range(len(list_timings)):
-            prayer, time_range = list_timings[i]
-            
-            is_prayer_time(prayer,time_range) # Send Notification Prayer Time
-            
-            if i < len(list_timings) - 1:
-    
-                start = time_range
-                end = list_timings[i + 1][1]
-                prayer_time = list_timings[i + 1][1]
-                prayer = list_timings[i + 1][0]
-                    
-                if is_time_in_range(start, end, current_time):
-                    # print(f"Current Time: {prayer}, Next: {list_timings[i + 1][0]} at {list_timings[i + 1][1]}")
-                    print(f" {prayer} at {prayer_time}")
-                    break
-            else:
-                end = time_range
-                start = list_timings[0][1]
-                prayer_time = list_timings[0][1]
-                prayer = list_timings[0][0]
-                # print(f"Current Time: {list_timings[len(list_timings) - 1][0]}, Next: {list_timings[0][0]} at {list_timings[0][1]}")
-                print(f" {prayer} at {prayer_time}")
+        for prayer, time_str in timings.items():
+            prayer_time = datetime.datetime.strptime(time_str, '%H:%M').time()
+            prayer_times.append((prayer, prayer_time))
+
+        # Sort prayers by time
+        prayer_times.sort(key=lambda x: x[1])
+
+        # Find the next upcoming prayer
+        next_prayer = None
+        next_prayer_time = None
+
+        for prayer, prayer_time in prayer_times:
+            if prayer_time > now.time():
+                next_prayer = prayer
+                next_prayer_time = prayer_time
                 break
-        
+
+        # If no future prayer is found, pick the first one (for next day)
+        if next_prayer is None:
+            next_prayer, next_prayer_time = prayer_times[0]
+            next_prayer_datetime = datetime.datetime.combine(now.date() + datetime.timedelta(days=1), next_prayer_time)
+        else:
+            next_prayer_datetime = datetime.datetime.combine(now.date(), next_prayer_time)
+
+        # Calculate the time left until the next prayer
+        time_diff = next_prayer_datetime - now
+        remaining_minutes = time_diff.seconds // 60
+        remaining_seconds = time_diff.seconds % 60
+
+        #print(f" {next_prayer} at {next_prayer_time.strftime('%H:%M')} ({remaining_minutes}m {remaining_seconds}s left)")
+        print(f"{next_prayer} at {next_prayer_time.strftime('%H:%M')} ({remaining_minutes}m {remaining_seconds}s left)")
+
     except Exception as err:
         print('Error, cannot get the page')
+
