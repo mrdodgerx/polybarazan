@@ -3,6 +3,7 @@ import requests
 import datetime
 from bs4 import BeautifulSoup
 import subprocess
+import os
 
 def get_html_page():
     url = 'https://www.waktusolat.my/selangor/sgr01'
@@ -25,10 +26,79 @@ def send_notification(title, message):
     command = ['notify-send', title, message]
     subprocess.run(command)
 
-def is_prayer_time(prayer, prayer_time):
+
+def play_azan(prayer_name):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    mp3_dir = os.path.join(base_dir, "mp3")
+
+    # Determine which file to play
+    lower_name = prayer_name.lower()
+    if lower_name == "maghrib":
+        filename = "Maghrib.mp3"
+    elif lower_name == "subuh":
+        filename = "Subuh.mp3"
+    else:
+        # Do not play anything for Imsak
+        if lower_name == "imsak":
+            return
+        filename = "Azan.mp3"
+
+    file_path = os.path.join(mp3_dir, filename)
+
+    # Start the player in the background so this script can exit quickly
+    try:
+        subprocess.Popen(["mpv", "--no-video", "--really-quiet", file_path])
+    except FileNotFoundError:
+        # Fallback: open with default application if mpv is not installed
+        subprocess.Popen(["xdg-open", file_path])
+
+
+def should_play_for_prayer(prayer_name):
+    """
+    Ensure we only play once per prayer per day.
+    Stores last played prayer in a small state file.
+    """
+    today = datetime.date.today().isoformat()
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    state_file = os.path.join(base_dir, ".last_prayer_played")
+
+    last_prayer = None
+    last_date = None
+
+    if os.path.exists(state_file):
+        try:
+            with open(state_file, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+            if content:
+                last_date, last_prayer = content.split("|", 1)
+        except Exception:
+            last_prayer = None
+            last_date = None
+
+    if last_date == today and last_prayer == prayer_name:
+        return False
+
+    try:
+        with open(state_file, "w", encoding="utf-8") as f:
+            f.write(f"{today}|{prayer_name}")
+    except Exception:
+        # If we cannot write the file, we still allow playing once.
+        pass
+
+    return True
+
+def is_prayer_time(prayer, prayer_time_str):
+    """
+    Only trigger when the current clock time exactly matches the prayer time.
+    Also ensures the azan is only played once per prayer per day.
+    """
     time_now = datetime.datetime.now().strftime('%H:%M')
-    if time_now == prayer_time:
+    if time_now == prayer_time_str:
         send_notification("Prayer Time", f"It's time for {prayer}.")
+
+        # Only play for non-Imsak prayers, and only once per day/prayer
+        if should_play_for_prayer(prayer):
+            play_azan(prayer)
 
 if __name__ == "__main__":
     try:
@@ -45,6 +115,10 @@ if __name__ == "__main__":
 
         # Sort prayers by time
         prayer_times.sort(key=lambda x: x[1])
+
+        # Check if it is exactly time for any prayer and, if so, send notification and (optionally) play azan
+        for prayer, time_str in timings.items():
+            is_prayer_time(prayer, time_str)
 
         # Find the next upcoming prayer
         next_prayer = None
