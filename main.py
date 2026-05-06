@@ -41,6 +41,8 @@ def play_azan(prayer_name):
         # Do not play anything for Imsak
         if lower_name == "imsak":
             return
+        if lower_name == "syuruk":
+            return 
         filename = "Azan.mp3"
 
     file_path = os.path.join(mp3_dir, filename)
