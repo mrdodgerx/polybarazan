@@ -47,11 +47,11 @@ interval = 60
 1. Ensure that the virtual environment is activated before running the script. You can do this by running:
 
 ~~~bash
-source /home/mrdodgerx/Code4Life/PolyBarAzan/venv/bin/activate
+source /home/mrdodgerx/.config/bin/others/polybarazan/venv/bin/activate
 ~~~
 2. Run the Python script using:
 ~~~
-python /home/mrdodgerx/Code4Life/PolyBarAzan/main.py
+python /home/mrdodgerx/.config/bin/others/polybarazan/main.py
 ~~~
 
 The script will automatically update every 60 seconds to display the current and next prayer times. It will also send desktop notifications when it's time for a prayer.

@@ -1,4 +1,3 @@
-    #    url = 'https://www.waktusolat.my/terengganu/trg01'
 import requests
 import datetime
 from bs4 import BeautifulSoup
@@ -14,12 +13,18 @@ def get_html_page():
 
 def get_prayer_time(html):
     soup = BeautifulSoup(html, 'html.parser')
-    salat_boxes = soup.find_all(class_='salat-times__box')
+    table = soup.find('table', id='waktu-semua')
+    today = datetime.date.today().strftime('%d-%m-%Y')
     salat_times = {}
-    for box in salat_boxes:
-        key = box.find('h4').text.strip()
-        value = box.find('span').text.strip()
-        salat_times[key] = value
+    if table:
+        rows = table.find_all('tr')
+        for row in rows:
+            cells = row.find_all('td')
+            if cells and today in cells[0].get_text(strip=True):
+                headers = ['Imsak', 'Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak']
+                for h, c in zip(headers, cells[1:]):
+                    salat_times[h] = c.get_text(strip=True)
+                break
     return salat_times
 
 def send_notification(title, message):

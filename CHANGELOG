@@ -11,6 +11,7 @@
 
 ### Fixed
 - Fixed print output formatting issue
+- Fixed prayer time parsing after website HTML structure change (switched from `salat-times__box` to `#waktu-semua` table)
 
 ### Tested
 - Tested on bspwm with polybar
